@@ -1,50 +1,59 @@
 package com.veron_santiago.facturas_api.service.implementations;
 
-import com.veron_santiago.facturas_api.persistance.entity.Product;
-import com.veron_santiago.facturas_api.persistance.repository.IProductRepository;
+import com.veron_santiago.facturas_api.persistence.entity.Product;
+import com.veron_santiago.facturas_api.persistence.repository.IProductRepository;
+import com.veron_santiago.facturas_api.presentation.dto.entities.ProductDTO;
 import com.veron_santiago.facturas_api.service.interfaces.IProductService;
+import com.veron_santiago.facturas_api.util.mapper.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements IProductService {
 
     private final IProductRepository productRepository;
+    private final ProductMapper productMapper;
 
     @Autowired
-    public ProductServiceImpl(IProductRepository productRepository) {
+    public ProductServiceImpl(IProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
+        this.productMapper = productMapper;
     }
 
     @Override
-    public Product createProduct(Product product) {
-        return productRepository.save(product);
+    public ProductDTO createProduct(ProductDTO productDTO) {
+        Product product = productMapper.productDTOToProduct(productDTO);
+        Product savedProduct = productRepository.save(product);
+        return productMapper.productToProductDTO(savedProduct);
     }
 
     @Override
-    public Product getProductById(Long id) {
-        return productRepository.findById(id)
+    public ProductDTO getProductById(Long id) {
+        Product product = productRepository.findById(id)
                 .orElseThrow( () -> new RuntimeException("Producto no encontrado") );
+        return productMapper.productToProductDTO(product);
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductDTO> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+        return products.stream()
+                .map(productMapper::productToProductDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Product updateProduct(Long id, Product product) {
-
+    public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
         Product extistingProduct = productRepository.findById(id)
                 .orElseThrow( () -> new RuntimeException("Producto no encontrado") );
 
-        extistingProduct.setName(product.getName());
-        extistingProduct.setPrice(product.getPrice());
+        extistingProduct.setName(productDTO.getName());
+        extistingProduct.setPrice(productDTO.getPrice().doubleValue());
 
-        return productRepository.save(extistingProduct);
+        return productMapper.productToProductDTO(productRepository.save(extistingProduct));
     }
 
     @Override

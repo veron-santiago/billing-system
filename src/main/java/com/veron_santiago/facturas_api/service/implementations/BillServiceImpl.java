@@ -1,43 +1,50 @@
 package com.veron_santiago.facturas_api.service.implementations;
 
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-import com.veron_santiago.facturas_api.persistance.entity.Bill;
-import com.veron_santiago.facturas_api.persistance.repository.IBillRepository;
+import com.veron_santiago.facturas_api.persistence.entity.Bill;
+import com.veron_santiago.facturas_api.persistence.repository.IBillRepository;
+import com.veron_santiago.facturas_api.presentation.dto.entities.BillDTO;
 import com.veron_santiago.facturas_api.service.interfaces.IBillService;
+import com.veron_santiago.facturas_api.util.mapper.BillMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BillServiceImpl implements IBillService {
 
     private final IBillRepository billRepository;
+    private final BillMapper billMapper;
 
     @Autowired
-    public BillServiceImpl(IBillRepository billRepository) {
+    public BillServiceImpl(IBillRepository billRepository, BillMapper billMapper) {
         this.billRepository = billRepository;
+        this.billMapper = billMapper;
     }
 
 
     @Override
-    public Bill createBill(Bill bill) {
-        return billRepository.save(bill);
+    public BillDTO createBill(BillDTO billDTO) {
+        Bill bill = billMapper.billDTOToBill(billDTO);
+        Bill savedBill = billRepository.save(bill);
+        return billMapper.billToBillDTO(savedBill);
     }
 
     @Override
-    public Bill getBillById(Long id) {
-        return billRepository.findById(id)
+    public BillDTO getBillById(Long id) {
+        Bill bill = billRepository.findById(id)
                 .orElseThrow( () -> new RuntimeException("Factura no encontrada"));
+        return billMapper.billToBillDTO(bill);
     }
 
     @Override
-    public List<Bill> getAllBills() {
-        return billRepository.findAll();
+    public List<BillDTO> getAllBills() {
+        List<Bill> bills = billRepository.findAll();
+        return bills.stream()
+                .map(billMapper::billToBillDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -52,17 +59,7 @@ public class BillServiceImpl implements IBillService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try {
-            PdfWriter writer = new PdfWriter(baos);
-            PdfDocument pdf = new PdfDocument(writer);
-            Document document = new Document(pdf);
-
-            document.add(new Paragraph("Factura #" + id));
-            document.add(new Paragraph("Cliente: Juan Pérez"));
-            document.add(new Paragraph("Total: $100.00"));
-
-            document.close();
         } catch (Exception e) {
-            e.printStackTrace();
         }
 
         return baos.toByteArray();

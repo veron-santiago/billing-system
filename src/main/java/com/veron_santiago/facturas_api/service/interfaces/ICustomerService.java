@@ -1,16 +1,16 @@
 package com.veron_santiago.facturas_api.service.interfaces;
 
-import com.veron_santiago.facturas_api.persistance.entity.Customer;
+import com.veron_santiago.facturas_api.presentation.dto.entities.CustomerDTO;
 
 import java.util.List;
 
 public interface ICustomerService {
 
-    Customer createCustomer(Customer customer);
-    Customer getCustomerById(Long id);
-    Customer getCustomerByEmail(String email);
-    List<Customer> getAllCustomers();
-    Customer updateCustomer(Long id, Customer customer);
+    CustomerDTO createCustomer(CustomerDTO customerDTO);
+    CustomerDTO getCustomerById(Long id);
+    List<CustomerDTO> getAllCustomers();
+    CustomerDTO getCustomerByEmail(String email);
+    CustomerDTO updateCustomer(Long id, CustomerDTO customerDTO);
     void deleteCustomer(Long id);
 
 }

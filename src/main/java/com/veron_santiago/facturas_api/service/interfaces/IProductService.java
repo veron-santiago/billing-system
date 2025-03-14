@@ -1,15 +1,15 @@
 package com.veron_santiago.facturas_api.service.interfaces;
 
-import com.veron_santiago.facturas_api.persistance.entity.Product;
+import com.veron_santiago.facturas_api.presentation.dto.entities.ProductDTO;
 
 import java.util.List;
 
 public interface IProductService {
 
-    Product createProduct(Product product);
-    Product getProductById(Long id);
-    List<Product> getAllProducts();
-    Product updateProduct(Long id, Product product);
+    ProductDTO createProduct(ProductDTO productDTO);
+    ProductDTO getProductById(Long id);
+    List<ProductDTO> getAllProducts();
+    ProductDTO updateProduct(Long id, ProductDTO productDTO);
     void deleteProduct(Long id);
 
 }
