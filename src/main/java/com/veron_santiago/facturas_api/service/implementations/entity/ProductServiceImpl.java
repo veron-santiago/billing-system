@@ -1,4 +1,4 @@
-package com.veron_santiago.facturas_api.service.implementations;
+package com.veron_santiago.facturas_api.service.implementations.entity;
 
 import com.veron_santiago.facturas_api.persistence.entity.Product;
 import com.veron_santiago.facturas_api.persistence.repository.IProductRepository;

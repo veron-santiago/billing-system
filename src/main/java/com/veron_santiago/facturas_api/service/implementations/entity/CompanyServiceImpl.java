@@ -1,4 +1,4 @@
-package com.veron_santiago.facturas_api.service.implementations;
+package com.veron_santiago.facturas_api.service.implementations.entity;
 
 import com.veron_santiago.facturas_api.persistence.entity.Company;
 import com.veron_santiago.facturas_api.persistence.repository.ICompanyRepository;
@@ -31,14 +31,13 @@ public class CompanyServiceImpl implements ICompanyService {
         this.jwtUtil = jwtUtil;
     }
 
-
     @Override
     public CompanyDTO createCompany(CompanyDTO companyDTO) {
         Company company = companyMapper.companyDTOToCompany(companyDTO);
         Company savedCompany = companyRepository.save(company);
-        return companyMapper.companyToCompanyDTO(savedCompany);
         String verificationToken = jwtUtil.generateVerificationToken(savedCompany.getEmail());
         sendVerificationEmail(savedCompany.getEmail(), verificationToken);
+        return companyMapper.companyToCompanyDTO(savedCompany);
     }
 
     @Override
@@ -57,7 +56,7 @@ public class CompanyServiceImpl implements ICompanyService {
     }
 
     @Override
-    public CompanyDTO updateCompany(Long id, CompanyDTO companyDTO) c{
+    public CompanyDTO updateCompany(Long id, CompanyDTO companyDTO) {
         Company existingCompany = companyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Compañia no encontrado"));
 
@@ -74,6 +73,11 @@ public class CompanyServiceImpl implements ICompanyService {
         Company company = companyRepository.findById(id)
                         .orElseThrow( () -> new RuntimeException("Compañia no encontrada con ID: " + id));
         companyRepository.deleteById(id);
+    }
+
+    public String getEmailByCompanyName(String companyName){
+        Optional<String> email = companyRepository.findEmailByCompanyName(companyName);
+        return email.orElseThrow( () -> new RuntimeException("Compañia no encontrada"));
     }
 
     public void sendVerificationEmail(String email, String verificationToken){
